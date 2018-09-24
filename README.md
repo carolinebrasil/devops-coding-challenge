@@ -1,34 +1,65 @@
-# Coveo DevOps Challenge
-### Le défi
-Ton défi, si tu l’acceptes, est de développer un outil permettant d’analyser la taille des ressources de stockage S3 d’un compte Amazon Web Services (AWS).
-Afin de tester ton outil, tu peux te créer un compte gratuit sur [Amazon](http://aws.amazon.com/fr/free/) (si tu n’en as pas déjà un).
-### Spécifications
-L’outil doit se présenter sous forme d’une commande shell (Windows, Mac ou Linux) qui permet d’obtenir des informations sur l’ensemble des ressources [S3](https://aws.amazon.com/documentation/s3/) d’un compte Amazon.
-##### L’outil doit permettre d’obtenir les informations suivantes:
+# bucket-stat 
+
+Bucket-stats est un script python permettant d'extraire des statistiques sur les buckets S3. Il se base sur les metriques de la supervision cloudwatch.
+
+## Installation
+
+> Prérequis :
+> - python3
+> - python3-pip
+> - git
+> - Un compte AWS configuré sur la machine : [documentation](https://docs.aws.amazon.com/cli/latest/userguide/cli-config-files.html)
+
+### Cloner le dépôt
+
+```$ git clone https://github.com/zk1ppy/devops-coding-challenge.git```
+
+### Installer les prérequis python
+
+```$ python3 -m pip install -r requirements.txt```
+
+## Utilisation
+
+Le script peut-être appelé sans paramètre pour afficher les informations standards :
 - Nom du bucket
 - Date de création
 - Nombre de fichiers
 - Taille totale des fichiers
-- Dernière date de mise-à-jour
+> - Dernière date de mise-à-jour
 
-##### Les options suivantes doivent être supportées:
-- Possibilité de sortir les résultats en octets, Kilooctets, Megaoctets, … ;
-- Pouvoir sortir les informations par [type de stockage](https://docs.aws.amazon.com/AmazonS3/latest/dev/storage-class-intro.html) (Standard, IA, RR) ;
-- Pouvoir spécifier une liste de buckets (bonus si support des expressions régulières) ;
-- Pouvoir regrouper les informations par [régions](http://docs.aws.amazon.com/fr_fr/AWSEC2/latest/UserGuide/using-regions-availability-zones.html).
+Exemples :
 
-##### Idées de fonctionnalités supplémentaires
-Il serait bien de pouvoir filtrer les fichiers considérés dans le calcul à l’aide d’un préfixe (ex: s3://mybucket/Folder/SubFolder/log*). Il est également utile de pouvoir filtrer ou organiser les résultats selon le [type d'encryption](https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingEncryption.html), d’obtenir des informations supplémentaires sur les buckets (Life cycle, cross-region replication, etc.) ou de tenir compte des [versions précédentes](https://docs.aws.amazon.com/AmazonS3/latest/UG/enable-bucket-versioning.html) des fichiers (nombre + taille).
+```shell
+$ python3 bucket-stats.py
+Nom                  Date de Création    Dernière MaJ                      Taille Nombre d'objets      Chiffré              Stockage             Publique             Région               Cout                 Répliqué            
+testcoveodevops      2018-09-22 10:37:18 2018-02-16 22:32:16          3253.000000 2.0                  True                 STANDARD             False                eu-west-3            $0.0                 True                
+testcoveodevops2     2018-02-18 21:16:29 2018-02-18 21:19:03          2722.000000 1.0                  False                STANDARD             False                eu-west-3            $0.0                 False               
+testcoveodevopsrepl  2018-09-22 10:13:49 2018-09-22 12:56:05             0.000000 0                    False                STANDARD             False                eu-west-2            $0.0                 False               
 
-Des statistiques pour afficher le pourcentage de l’espace total occupé par un bucket ou toute autre bonne idée que tu pourrais avoir sont également les bienvenues.
-### Plus d'informations
-- Tu es libre d’utiliser le langage et le [SDK](https://aws.amazon.com/tools/) de ton choix ;
-- Nous allons tester le fruit de ton travail sur notre environnement qui, soit dit en passant, contient des millions de fichiers. La performance globale de la solution proposée est donc à considérer ;
-- Ton code doit être disponible à partir de n'importe quel gestionnaire de code source publique (tu peux faire un "fork" de notre challenge si tu veux).
+```
 
-## Conseils
+```shell
+$ python3 bucket-stats.py -h -f "^.*2$"
+Nom,Date de Création,Dernière MaJ,Taille,Nombre d'objets,Chiffré,Stockage,Publique,Région,Cout,Répliqué
+testcoveodevops2,2018-02-18 21:16:29,2018-02-18 21:19:03,2.7KB,1.0,False,STANDARD,False,eu-west-3,$0.0,False
+```
 
-- **Tente de créer ta solution comme si c'était du vrai code de production**. Montre nous comment tu crées du code propre et maintenable qui fait des choses incroyables. Construit quelque chose à laquelle nous serions heureux de contribuer. Ceci n'est pas un concours de programmation où les "hack" malpropres remportent la victoire.
-- N'hésite pas à ajouter des fonctionnalités! Nous sommes curieux de voir ce à quoi tu peux penser. Nous nous attendrons à la même chose si tu travailles avec nous.
-- La documentation et la maintenabilité est un plus.
-- N'oublie pas les tests unitaires.
+## Utilisation
+
+Utilisation : bucket-stat [OPTIONS]
+
+Affiche des renseignements sur les buckets AWS S3, par defaut
+
+Arguments :
+
+--help 			 affiche cette aide.
+
+--crypted-only 		 n'affiche que les buckets chiffrés
+
+-c, --csv 		 ffiche le résultat en CSV
+
+-s, --sorted 		 groupe les résultats par region et groupe de stockage
+
+ -h, --human-readable 	 afficher les tailles dans des puissances de 1024 (par exemple 1023M)
+
+-f, --filter=FILTRE 	 filtre la liste des buckets sur la base de l'expression regulière FILTRE
