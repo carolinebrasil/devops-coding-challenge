@@ -25,7 +25,7 @@ Le script peut-être appelé sans paramètre pour afficher les informations stan
 - Date de création
 - Nombre de fichiers
 - Taille totale des fichiers
-> - Dernière date de mise-à-jour
+- Dernière date de mise-à-jour
 
 Exemples :
 
